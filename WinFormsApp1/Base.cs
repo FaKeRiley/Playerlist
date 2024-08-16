@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Windows.Forms;
 
+
+
 namespace WinFormsApp1
 {
     public partial class Base : Form
@@ -93,6 +95,7 @@ namespace WinFormsApp1
             }
         }
 
+        
         private void MouseUp1(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -101,9 +104,12 @@ namespace WinFormsApp1
             }
         }
 
+    
+
         private void button3_Click(object sender, EventArgs e)
         {
             Close();
         }
+
     }
 }

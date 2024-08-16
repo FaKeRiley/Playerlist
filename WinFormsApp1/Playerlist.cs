@@ -140,6 +140,33 @@ namespace WinFormsApp1
 
 
 
+        private string GetLogDirectoryFromConfig()
+        {
+            try
+            {
+                string configFilePath = "PLconfig.txt";
+                if (File.Exists(configFilePath))
+                {
+                    string logDirectory = File.ReadAllText(configFilePath).Trim();
+                    if (Directory.Exists(logDirectory))
+                    {
+                        return logDirectory;
+                    }
+                    else
+                    {
+                        throw new DirectoryNotFoundException("Das im PLconfig angegebene Verzeichnis wurde nicht gefunden.");
+                    }
+                }
+                else
+                {
+                    throw new FileNotFoundException("Die PLconfig.txt wurde nicht gefunden.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Fehler beim Laden des Verzeichnisses aus der Konfigurationsdatei.", ex);
+            }
+        }
 
 
 
@@ -152,9 +179,7 @@ namespace WinFormsApp1
 
 
 
-
-
-        private Cursor CreateCursorWithColor(Bitmap bitmap, Color currentColor, Color nextColor, int newSize)
+            private Cursor CreateCursorWithColor(Bitmap bitmap, Color currentColor, Color nextColor, int newSize)
         {
             // Erstelle eine neue Bitmap mit der gewünschten Größe
             Bitmap resizedBitmap = new Bitmap(bitmap, new Size(newSize, newSize));
@@ -201,39 +226,41 @@ namespace WinFormsApp1
 
         private void Playerlist_Load(object sender, EventArgs e)
         {
-
             this.KeyPreview = true;
-
 
             this.label1.Paint += new PaintEventHandler(this.Label_Paint);
             this.KeyPreview = true;
             this.TransparencyKey = Color.Black;
             this.Opacity = 0.4;
             this.FormBorderStyle = FormBorderStyle.None;
-            this.Size = new Size(200, 700);
+            this.Size = new Size(300, 600);
             this.TopMost = true;
             CenterLabel();
-            // Einstellungen für das Label
+
             this.label1.BackColor = Color.Transparent;
-            this.label1.ForeColor = Color.Purple;
+            this.label1.ForeColor = Color.Red;
             this.label1.Font = new Font(this.label1.Font.FontFamily, 9f);
-            string latestLogFile = this.GetLatestLogFile("C:\\Users\\FaKeRiley\\AppData\\LocalLow\\VRChat\\VRChat");
-            if (string.IsNullOrEmpty(latestLogFile))
-                return;
+
             try
             {
+                string logDirectory = GetLogDirectoryFromConfig();
+                string latestLogFile = this.GetLatestLogFile(logDirectory);
+                if (string.IsNullOrEmpty(latestLogFile))
+                    return;
+
                 this.label1.Text = "დPlayerlistდ\n" + this.ExtractLatestPlayerEventText(this.FindPlayerEventLines(latestLogFile));
 
                 this.label1.BackColor = Color.Transparent;
-                this.label1.ForeColor = Color.Purple;
-                this.label1.Font = new Font(this.label1.Font.FontFamily, 9, FontStyle.Regular); // Wählen Sie eine passende Schriftgröße
-                this.label1.BorderStyle = BorderStyle.FixedSingle; // Zeigt den Rahmen des Labels an
+                this.label1.ForeColor = Color.Red;
+                this.label1.Font = new Font(this.label1.Font.FontFamily, 10, FontStyle.Regular);
+                this.label1.BorderStyle = BorderStyle.FixedSingle;
             }
             catch (Exception ex)
             {
                 this.label1.Text = "Fehler: " + ex.Message;
             }
         }
+
         private string ExtractPlayerName(string line)
         {
             int startIndex = line.IndexOf(this.kickVoteKeyword) + this.kickVoteKeyword.Length;
@@ -251,14 +278,14 @@ namespace WinFormsApp1
         }
         private void OnUpdateTimerTick(object sender, EventArgs e)
         {
-            string latestLogFile = this.GetLatestLogFile("C:\\Users\\FaKeRiley\\AppData\\LocalLow\\VRChat\\VRChat");
             try
             {
+                string logDirectory = GetLogDirectoryFromConfig();
+                string latestLogFile = this.GetLatestLogFile(logDirectory);
                 this.label1.Text = "Aktuelle Spieler:\n" + this.ExtractLatestPlayerEventText(this.FindPlayerEventLines(latestLogFile));
                 this.label1.ForeColor = Color.Black;
-                this.label1.ForeColor = Color.Black; // Wählen Sie eine passende Textfarbe
-                this.label1.Font = new Font(this.label1.Font.FontFamily, 12f, FontStyle.Regular); // Wählen Sie eine passende Schriftgröße
-                this.label1.BorderStyle = BorderStyle.FixedSingle; // Zeigt den Rahmen des Labels an
+                this.label1.Font = new Font(this.label1.Font.FontFamily, 12f, FontStyle.Regular);
+                this.label1.BorderStyle = BorderStyle.FixedSingle;
             }
             catch (Exception ex)
             {
@@ -267,6 +294,7 @@ namespace WinFormsApp1
                 this.label1.Font = new Font(this.label1.Font.FontFamily, this.label1.Font.Size);
             }
         }
+
 
         private void AktualisiereSchriftgroesse() => this.label1.Font = new Font(this.label1.Font.FontFamily, this.label1.Font.Size / 1f, this.label1.Font.Style);
 
@@ -438,7 +466,7 @@ namespace WinFormsApp1
                         int alpha = (int)(255 * (1 - distance / 50)); // Hier kannst du den Faktor anpassen
 
                         // Wähle die Linienfarbe basierend auf der Entfernung und der berechneten Alpha-Komponente
-                        Color lineColor = Color.FromArgb(alpha, Color.Purple);
+                        Color lineColor = Color.FromArgb(alpha, Color.AliceBlue);
 
                         using (Pen linePen = new Pen(lineColor))
                         {
